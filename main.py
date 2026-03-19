@@ -62,6 +62,25 @@ def get_event(event_id):
         return jsonify(data.get("data", []))
     return jsonify({"error": "Failed"}), 500
 
+@app.route('/verify/<int:channel_id>')
+def verify_stream(channel_id):
+    data = fetch_and_decrypt(f"http://a2.apk-api.com/api/channel/{channel_id}")
+    if not data:
+        return jsonify({"error": "Failed"}), 500
+    streams = data.get("data", [])
+    results = []
+    for s in streams:
+        url = s.get("url", "")
+        try:
+            r = requests.head(url, headers={
+                "Referer": "https://x.com/",
+                "User-Agent": s.get("user_agent", "")
+            }, timeout=5)
+            results.append({"name": s.get("name"), "url": url, "status": r.status_code})
+        except Exception as e:
+            results.append({"name": s.get("name"), "url": url, "status": str(e)})
+    return jsonify(results)
+
 @app.route('/test')
 def test():
     return jsonify({"status": "ok", "message": "Yacine API running"})
