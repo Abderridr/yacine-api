@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 import base64
 import json
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 app = Flask(__name__)
 
@@ -85,7 +85,6 @@ def get_tomorrow_matches():
     if not data:
         return jsonify({"error": "Failed"}), 500
     events = data.get("data", [])
-    from datetime import timedelta
     tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).date()
     tomorrow_matches = []
     for event in events:
@@ -95,6 +94,28 @@ def get_tomorrow_matches():
             if event_date == tomorrow:
                 tomorrow_matches.append(event)
     return jsonify(tomorrow_matches)
+
+@app.route('/debug/events')
+def debug_events():
+    data = fetch_and_decrypt("http://a2.apk-api.com/api/events")
+    if not data:
+        return jsonify({"error": "Failed"}), 500
+    events = data.get("data", [])
+    debug = []
+    for event in events:
+        start_time = event.get("start_time", 0)
+        if start_time:
+            dt = datetime.fromtimestamp(start_time, tz=timezone.utc)
+            debug.append({
+                "name": f"{event.get('team_1', {}).get('name')} vs {event.get('team_2', {}).get('name')}",
+                "start_time_raw": start_time,
+                "date_utc": dt.strftime("%Y-%m-%d"),
+                "time_utc": dt.strftime("%H:%M")
+            })
+    return jsonify({
+        "server_today_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "events": debug
+    })
 
 @app.route('/verify/<int:channel_id>')
 def verify_stream(channel_id):
