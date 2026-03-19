@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 import base64
 import json
 import requests
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 
@@ -62,6 +63,39 @@ def get_event(event_id):
         return jsonify(data.get("data", []))
     return jsonify({"error": "Failed"}), 500
 
+@app.route('/matches/today')
+def get_today_matches():
+    data = fetch_and_decrypt("http://a2.apk-api.com/api/events")
+    if not data:
+        return jsonify({"error": "Failed"}), 500
+    events = data.get("data", [])
+    today = datetime.now(timezone.utc).date()
+    today_matches = []
+    for event in events:
+        start_time = event.get("start_time", 0)
+        if start_time:
+            event_date = datetime.fromtimestamp(start_time, tz=timezone.utc).date()
+            if event_date == today:
+                today_matches.append(event)
+    return jsonify(today_matches)
+
+@app.route('/matches/tomorrow')
+def get_tomorrow_matches():
+    data = fetch_and_decrypt("http://a2.apk-api.com/api/events")
+    if not data:
+        return jsonify({"error": "Failed"}), 500
+    events = data.get("data", [])
+    from datetime import timedelta
+    tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).date()
+    tomorrow_matches = []
+    for event in events:
+        start_time = event.get("start_time", 0)
+        if start_time:
+            event_date = datetime.fromtimestamp(start_time, tz=timezone.utc).date()
+            if event_date == tomorrow:
+                tomorrow_matches.append(event)
+    return jsonify(tomorrow_matches)
+
 @app.route('/verify/<int:channel_id>')
 def verify_stream(channel_id):
     data = fetch_and_decrypt(f"http://a2.apk-api.com/api/channel/{channel_id}")
@@ -75,7 +109,7 @@ def verify_stream(channel_id):
             r = requests.head(url, headers={
                 "Referer": "https://x.com/",
                 "User-Agent": s.get("user_agent", "")
-            }, timeout=5)
+            }, timeout=5, allow_redirects=True)
             results.append({"name": s.get("name"), "url": url, "status": r.status_code})
         except Exception as e:
             results.append({"name": s.get("name"), "url": url, "status": str(e)})
