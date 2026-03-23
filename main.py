@@ -80,7 +80,7 @@ def get_event(event_id):
 @app.route('/config')
 def get_config():
     return jsonify({
-        "mode": "streaming",  # change to "scores" to disable streaming
+        "mode": "scores",  # change to "scores" to disable streaming
         "show_ads": True,
         "maintenance": False,
         "maintenance_message": "التطبيق تحت الصيانة، نعود قريباً",
