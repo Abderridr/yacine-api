@@ -77,6 +77,18 @@ def get_event(event_id):
         return jsonify(data.get("data", []))
     return jsonify({"error": "Failed"}), 500
 
+@app.route('/config')
+def get_config():
+    return jsonify({
+        "mode": "streaming",  # change to "scores" to disable streaming
+        "show_ads": True,
+        "maintenance": False,
+        "maintenance_message": "التطبيق تحت الصيانة، نعود قريباً",
+        "latest_version": "1.0.0",
+        "update_url": "https://github.com/abderridr/ursport-app/releases/download/v1.0.0/app-arm64-v8a-release.apk",
+        "update_required": False
+    })
+
 @app.route('/matches/today')
 def get_today_matches():
     data = fetch_and_decrypt("http://a2.apk-api.com/api/events")
