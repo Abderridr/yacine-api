@@ -82,11 +82,11 @@ def get_config():
     return jsonify({
         "mode": "streaming",  # change to "scores" to disable streaming
         "show_ads": True,
-        "maintenance": True,
+        "maintenance": False,
         "maintenance_message": "التطبيق تحت الصيانة، نعود قريباً",
         "latest_version": "1.0.0",
         "update_url": "https://github.com/abderridr/ursport-app/releases/download/v1.0.0/app-arm64-v8a-release.apk",
-        "update_required": False
+        "update_required": True
     })
 
 @app.route('/matches/today')
