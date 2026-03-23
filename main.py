@@ -82,7 +82,7 @@ def get_config():
     return jsonify({
         "mode": "scores",  # change to "scores" to disable streaming
         "show_ads": True,
-        "maintenance": False,
+        "maintenance": True,
         "maintenance_message": "التطبيق تحت الصيانة، نعود قريباً",
         "latest_version": "1.0.0",
         "update_url": "https://github.com/abderridr/ursport-app/releases/download/v1.0.0/app-arm64-v8a-release.apk",
