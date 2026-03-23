@@ -86,7 +86,7 @@ def get_config():
         "maintenance_message": "التطبيق تحت الصيانة، نعود قريباً",
         "latest_version": "1.0.0",
         "update_url": "https://github.com/abderridr/ursport-app/releases/download/v1.0.0/app-arm64-v8a-release.apk",
-        "update_required": True
+        "update_required": False
     })
 
 @app.route('/matches/today')
